@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import domain.Field;
 import domain.Match;
 import domain.Profile;
+import domain.Request;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 
@@ -41,9 +42,6 @@ public class Client implements Runnable {
 		}
 
 		return p;
-		// logging
-		/**logger.info(json);
-		logger.info(p.toString());*/
 	}
 
 	public void postProfile(String username, String nome, String cognome, String provincia, String ruolo1, String ruolo2, String password) throws Exception{
@@ -51,15 +49,15 @@ public class Client implements Runnable {
 		try
 		{
 			js =  Unirest.post("http://localhost:8080/Profile/add")
-			.header("accept", "application/json")
-			.field("username", username)
-			.field("nome", nome)
-			.field("cognome", cognome)
-			.field("provincia", provincia)
-			.field("ruolo1", ruolo1)
-			.field("ruolo2", ruolo2)
-			.field("password", password)
-			.asJson();
+					.header("accept", "application/json")
+					.field("username", username)
+					.field("nome", nome)
+					.field("cognome", cognome)
+					.field("provincia", provincia)
+					.field("ruolo1", ruolo1)
+					.field("ruolo2", ruolo2)
+					.field("password", password)
+					.asJson();
 		}
 		catch (JSONException je) {
 			throw new Exception();
@@ -71,7 +69,7 @@ public class Client implements Runnable {
 			throw new Exception();
 		}
 	}
-	
+
 	public void updateProfile(String username, String nome, String cognome, String provincia, String ruolo1, String ruolo2, String password) {
 		Unirest.put("http://localhost:8080/Profile/" + username)
 		.field("nome", nome)
@@ -82,12 +80,11 @@ public class Client implements Runnable {
 		.field("password", password)
 		.asJson();
 	}
-	
+
 	public void getMatch(java.sql.Date data, java.sql.Time orario,int campo_id) {
 		String url = String.format("http://localhost:8080/Match/bykey?giorno=" + data + "&orario=" + orario + "&=" + campo_id);
 		String json = Unirest.get(url).asString().getBody();
 
-		// JSON to object mapping
 		Match m = null;
 		try {
 			m = om.readValue(json, Match.class);
@@ -103,11 +100,12 @@ public class Client implements Runnable {
 		logger.info(json);
 		logger.info(m.toString());
 	}
-	
+
 	public void postMatch(Date data, Time orario, int campo_id, String provincia, String organizzatore) throws Exception {
-		String time = orario.toString();
-		HttpResponse<kong.unirest.JsonNode> js;
+		String time = orario.toString();	
 		String field_id = String.valueOf(campo_id);
+		
+		HttpResponse<kong.unirest.JsonNode> js;
 		try {
 			js = Unirest.post("http://localhost:8080/Match/add")
 					.header("accept", "application/jason")
@@ -124,11 +122,11 @@ public class Client implements Runnable {
 		if(!js.isSuccess())
 			throw new Exception("Partita già esistente nel database");
 	}
-	
+
 	public ArrayList<Field> getField(String provincia) throws JsonMappingException, JsonProcessingException {
 		String url = String.format("http://localhost:8080/Field/byprovincia?provincia=%s", provincia);
 		String json = Unirest.get(url).asString().getBody();
-		
+
 		ArrayList<Field> f = null;
 		try {
 			f = om.readValue(json, om.getTypeFactory().constructCollectionType(ArrayList.class, Field.class));
@@ -142,13 +140,13 @@ public class Client implements Runnable {
 		}
 		return f;
 	}
-	
+
 	public ArrayList<String> getProvince(){
 		String url = new String("http://localhost:8080/Field/province");
 		String json = Unirest.get(url).asString().getBody();
 
 		ArrayList<String> l = new ArrayList<String>();
-		
+
 		char[] province = new char[2];
 		int j = 0; char c; 
 		for(int i = 0; i < json.length(); ++i) {
@@ -165,8 +163,52 @@ public class Client implements Runnable {
 		return l;
 	}
 
+	public ArrayList<Request> getRequest(){
+		String url = new String("http://localhost:8080/Request");
+		String json = Unirest.get(url).asString().getBody();
+
+		ArrayList<Request> r = new ArrayList<Request>();
+		try {
+			r = om.readValue(json,  om.getTypeFactory().constructCollectionType(ArrayList.class, Request.class));
+		} catch (JsonParseException e) {
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			System.out.println(e.toString());
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return r;
+	}
+	
+	public void postRequest(Match m, String ruolo, String nome_impianto, String nome_campo) throws Exception {
+		String time = m.orario.toString();
+		String campo = String.valueOf(m.campo_id);
+		
+		HttpResponse<kong.unirest.JsonNode> js;
+		try {
+			js = Unirest.post("http://localhost:8080/Request/add")
+					.header("accept", "application/jason")
+					.field("giorno", m.data)
+					.field("orario_i", time)
+					.field("id_campo", campo)
+					.field("provincia", m.provincia)
+					.field("organizzatore", m.organizzatore)
+					.field("ruolo", ruolo)
+					.field("nome_impianto", nome_impianto)
+					.field("nome_campo", nome_campo)
+					.asJson();
+		} catch(JSONException jexc) {
+			jexc.printStackTrace();
+			throw jexc;
+		}
+		
+		if(!js.isSuccess()) {
+			throw new Exception("Richiesta non riuscita!");
+		}	
+	}
+
 	@Override
 	public void run() {
-		
 	}
 }

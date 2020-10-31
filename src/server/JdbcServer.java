@@ -17,6 +17,7 @@ import database.DBManager;
 import domain.Match;
 import domain.Profile;
 import domain.Field;
+import domain.Request;
 import spark.Spark;
 
 public class JdbcServer {
@@ -50,14 +51,7 @@ public class JdbcServer {
 						"password varchar(20)\r\n" +
 						")\r\n" + 
 						"");
-				/*db.executeQuery("create table partita (\r\n" + 
-						"giorno date,\r\n" + 
-						"orario_Inizio smalldatetime, \r\n" + 
-						"indirizzo varchar(15), \r\n" + 
-						"provincia varchar(15) not null,\r\n" + 
-						"organizzatore varchar(50) references profilo, \r\n" + 
-						"primary key(giorno, orario_inizio, indirizzo)\r\n" + 
-						")");*/
+				
 				db.executeQuery("create table partita (\r\n" + 
 						"giorno date,\r\n" + 
 						"orario_Inizio time, \r\n" + 
@@ -66,7 +60,26 @@ public class JdbcServer {
 						"organizzatore varchar(50) references profilo, \r\n" + 
 						"primary key(giorno, orario_inizio, campo_id)\r\n" + 
 						")");
-				//insert 
+				db.executeQuery("create table campo (\r\n" + 
+						"id int unique not null identity(1, 1),\r\n" + 
+						"provincia varchar(50),\r\n" + 
+						"nome_impianto varchar(50), \r\n" + 
+						"nome_campo varchar(50),\r\n" + 
+						"primary key(provincia, nome_impianto, nome_campo)\r\n" + 
+						")");
+				db.executeQuery("create table richiesta(\r\n" + 
+						"id_r int identity(1, 1), \r\n" + 
+						"id_campo int references campo(id), \r\n" + 
+						"giorno date, \r\n" + 
+						"orario_i time(7), \r\n" + 
+						"provincia varchar(50),\r\n" + 
+						"nome_impianto varchar(50),\r\n" +
+						"nome_campo varchar(50), \r\n" +
+						"organizzatore varchar(50), \r\n" + 
+						"ruolo varchar(20), \r\n" + 
+						"accepter varchar(20), \r\n" + 
+						"primary key(id_r, giorno, orario_i, id_campo)\r\n" + 
+						")");
 			} 
 			catch (SQLException e1) {
 				throw new RuntimeException();			
@@ -274,8 +287,8 @@ public class JdbcServer {
 		});
 		
 		//GET -get by provincia 
-		get("/Field/byprovincia", (request, response) ->{
-			ArrayList<Field> f = new ArrayList<Field>();;
+		get("/Field/byprovincia", (request, response) -> {
+			ArrayList<Field> f = new ArrayList<Field>();
 			String provincia = request.queryParams("provincia");
 			String query = String.format("Select * from campo where provincia = '%s'" , provincia);
 			ResultSet rs = db.executeQuery(query);
@@ -297,10 +310,45 @@ public class JdbcServer {
 			
 			return province;
 		});
+		
+		/**
+		 * request for Request 
+		 * 
+		 */
+		get("/Request", (request, response) -> {
+			ArrayList<Request> r = new ArrayList<Request>();
+			String query = new String("SELECT * FROM RICHIESTA");
+			ResultSet rs = db.executeQuery(query);
+			while(rs.next()) {
+				r.add(new Request(new Match(rs.getDate("giorno"), rs.getTime("orario_i"), rs.getInt("id_campo"), rs.getString("provincia"), 
+						rs.getString("organizzatore")), rs.getString("ruolo"), rs.getString("nome_impianto"), rs.getString("nome_campo")));
+			}
+			return om.writeValueAsString(r);
+		});
+		
+		post("/Request/add", (request, response) -> {
+			java.sql.Date giorno = java.sql.Date.valueOf(request.queryParams("giorno"));
+			java.sql.Time orario_i = java.sql.Time.valueOf(request.queryParams("orario_i"));
+			int id_campo = Integer.valueOf(request.queryParams("id_campo"));
+			String provincia = request.queryParams("provincia"); 
+			String organizzatore = request.queryParams("organizzatore");
+			String ruolo = request.queryParams("ruolo");
+			String nome_impianto = request.queryParams("nome_impianto");
+			String nome_campo = request.queryParams("nome_campo");
+			Request r = new Request(new Match(giorno, orario_i, id_campo, provincia, organizzatore), ruolo, nome_impianto, nome_campo);
+			
+			String query = new String("insert into richiesta (id_campo, giorno, orario_i, provincia, nome_impianto, organizzatore, ruolo, nome_campo) \r\n" + 
+					"	values(" + id_campo + ", '" + giorno + "', '"+ orario_i + "', '" + provincia + "', '" + nome_impianto +
+					"', '" + organizzatore + "', '" + ruolo + "', '" + nome_campo + "' ) ");
+			
+			db.executeUpdate(query);
+			
+			return om.writeValueAsString(r);
+		});
 	
 	}	
 	public static void main(String[] args) throws Exception {
-		// TODO Auto-generated method stub
+	
 		new JdbcServer().run();
 	}
 

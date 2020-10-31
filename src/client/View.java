@@ -30,6 +30,8 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 
 import domain.Field;
 import domain.Profile;
+import domain.Match;
+
 import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
 import net.sourceforge.jdatepicker.impl.JDatePickerImpl;
 import net.sourceforge.jdatepicker.impl.UtilDateModel;
@@ -499,6 +501,16 @@ public class View extends JFrame implements ActionListener{
 				}
 				catch(Exception exc) {
 					exc.printStackTrace();
+				}
+				String r1 = rules.getSelectedItem().toString();
+				String strutt = impianto.getSelectedItem().toString();
+				try {
+					client.postRequest(new Match(d1, o1, id_campo, p1, org1), r1, strutt, camp1);
+				}
+				catch (Exception exc1) {
+					System.out.println(exc1.toString());
+					JOptionPane.showMessageDialog(null, "Errore in creazione della richiesta");
+					return;
 				}
 				JOptionPane.showMessageDialog(null, "Richiesta invitata correttamente!");
 			}
