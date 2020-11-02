@@ -26,6 +26,7 @@ public class Client implements Runnable {
 	ObjectMapper om = new ObjectMapper();
 
 	public Profile getId(String username) {
+		//String url = String.format("http://192.168.1.15:8080/Profile/byusername?username=%s", username);
 		String url = String.format("http://localhost:8080/Profile/byusername?username=%s", username);
 		String json = Unirest.get(url).asString().getBody();
 
@@ -70,18 +71,17 @@ public class Client implements Runnable {
 		}
 	}
 
-	public void updateProfile(String username, String nome, String cognome, String provincia, String ruolo1, String ruolo2, String password) {
+	public void updateProfile(String username, String nome, String cognome, String provincia, String ruolo1, String ruolo2) {
 		Unirest.put("http://localhost:8080/Profile/" + username)
 		.field("nome", nome)
 		.field("cognome", cognome)
 		.field("provincia", provincia)
 		.field("ruolo1", ruolo1)
 		.field("ruolo2", ruolo2)
-		.field("password", password)
 		.asJson();
 	}
 
-	public void getMatch(java.sql.Date data, java.sql.Time orario,int campo_id) {
+	public Match getMatch(java.sql.Date data, java.sql.Time orario,int campo_id) {
 		String url = String.format("http://localhost:8080/Match/bykey?giorno=" + data + "&orario=" + orario + "&=" + campo_id);
 		String json = Unirest.get(url).asString().getBody();
 
@@ -96,9 +96,7 @@ public class Client implements Runnable {
 			e.printStackTrace();
 		}
 
-		// logging
-		logger.info(json);
-		logger.info(m.toString());
+		return m;
 	}
 
 	public void postMatch(Date data, Time orario, int campo_id, String provincia, String organizzatore) throws Exception {
@@ -205,6 +203,38 @@ public class Client implements Runnable {
 		if(!js.isSuccess()) {
 			throw new Exception("Richiesta non riuscita!");
 		}	
+	}
+	public ArrayList<Match> getMatchall(){
+		String url = new String("http://localhost:8080/Match");
+		String json = Unirest.get(url).asString().getBody();
+		ArrayList<Match> m = new ArrayList<Match>();
+		try {
+			m = om.readValue(json,  om.getTypeFactory().constructCollectionType(ArrayList.class, Match.class));
+		} catch (JsonParseException e) {
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			System.out.println(e.toString());
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return m;
+	}
+	
+	public void updateRequest(int id_r, int id_campo, java.sql.Date giorno, java.sql.Time orario_i, String accepter) {
+		String data = new String(String.valueOf(giorno));
+		String ora = new String(String.valueOf(orario_i));
+		String idr = new String(String.valueOf(id_r));
+		String idcampo = new String(String.valueOf(id_campo));
+		
+		Unirest.put("http://localhost:8080/Request/" + id_r)
+		.field("id_r", idr)
+		.field("id_campo", idcampo)
+		.field("giorno", data)
+		.field("orario_i", ora)
+		.field("accepter", accepter)
+		.asJson();
 	}
 
 	@Override

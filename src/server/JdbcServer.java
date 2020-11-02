@@ -320,7 +320,7 @@ public class JdbcServer {
 			String query = new String("SELECT * FROM RICHIESTA");
 			ResultSet rs = db.executeQuery(query);
 			while(rs.next()) {
-				r.add(new Request(new Match(rs.getDate("giorno"), rs.getTime("orario_i"), rs.getInt("id_campo"), rs.getString("provincia"), 
+				r.add(new Request(rs.getInt("id_r"), new Match(rs.getDate("giorno"), rs.getTime("orario_i"), rs.getInt("id_campo"), rs.getString("provincia"), 
 						rs.getString("organizzatore")), rs.getString("ruolo"), rs.getString("nome_impianto"), rs.getString("nome_campo")));
 			}
 			return om.writeValueAsString(r);
@@ -329,6 +329,7 @@ public class JdbcServer {
 		post("/Request/add", (request, response) -> {
 			java.sql.Date giorno = java.sql.Date.valueOf(request.queryParams("giorno"));
 			java.sql.Time orario_i = java.sql.Time.valueOf(request.queryParams("orario_i"));
+			
 			int id_campo = Integer.valueOf(request.queryParams("id_campo"));
 			String provincia = request.queryParams("provincia"); 
 			String organizzatore = request.queryParams("organizzatore");
@@ -345,6 +346,35 @@ public class JdbcServer {
 			
 			return om.writeValueAsString(r);
 		});
+		
+		put("/Request/:id_r", (request, response) ->	{
+			int id_r = Integer.valueOf(request.params("id_r"));
+			int id_campo = Integer.valueOf(request.params("id_campo"));
+			java.sql.Date giorno = java.sql.Date.valueOf(request.queryParams("giorno"));
+			java.sql.Time orario_i = java.sql.Time.valueOf(request.queryParams("orario_i"));
+			String accepter = request.queryParams("accepter");
+			String query;
+			
+			query = String.format("SELECT * FROM richiesta WHERE id_r = %d", id_r);
+			
+			try
+			{
+				ResultSet rs = db.executeQuery(query);
+				if (rs.next() == false) {
+					response.status(404);
+					return om.writeValueAsString("{status: failed}");
+				}
+			}
+			catch (SQLException e) {
+				throw new Exception();
+			}
+			
+			Request r = new Request();
+			
+			query = ("update richiesta set accepter = '" + accepter + "' WHERE id_r=" + id_r + " and id_campo=" + id_campo + "and giorno='" + giorno + "' and orario_i=' " + orario_i + "'");
+			db.executeUpdate(query);
+			return om.writeValueAsString(r);
+				});
 	
 	}
 	

@@ -18,5 +18,8 @@ public class Match {
 		this.provincia = provincia;
 		this.organizzatore = organizzatore;
 	}
+	public Match() {
+		super();
+	}
 
 }
