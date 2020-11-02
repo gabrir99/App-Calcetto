@@ -346,9 +346,9 @@ public class JdbcServer {
 			return om.writeValueAsString(r);
 		});
 	
-	}	
-	public static void main(String[] args) throws Exception {
+	}
 	
+	public static void main(String[] args) throws Exception {
 		new JdbcServer().run();
 	}
 

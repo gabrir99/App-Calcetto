@@ -9,7 +9,7 @@ import java.awt.event.ActionListener;
 import java.sql.Time;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
@@ -452,7 +452,7 @@ public class View extends JFrame implements ActionListener{
 				strutture.add(f.get(i).nome_impianto);
 			}
 			
-			HashSet<String> struttureTmp = new HashSet<String>(strutture);
+			LinkedHashSet<String> struttureTmp = new LinkedHashSet<String>(strutture);
 			strutture.removeAllElements();
 			strutture = new Vector<String>(struttureTmp);
 			impianto.setModel(new DefaultComboBoxModel<String>(strutture));

@@ -115,8 +115,7 @@ public class Client implements Runnable {
 					.field("provincia", provincia)
 					.field("organizzatore", organizzatore)
 					.asJson();	
-		}
-		catch(JSONException jexc) {
+		} catch(JSONException jexc) {
 			throw new Exception();
 		}
 		if(!js.isSuccess())
