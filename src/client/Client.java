@@ -27,7 +27,7 @@ public class Client implements Runnable {
 
 	public Profile getId(String username) {
 		//String url = String.format("http://192.168.1.15:8080/Profile/byusername?username=%s", username);
-		String url = String.format("http://localhost:8080/Profile/byusername?username=%s", username);
+		String url = String.format("http://192.168.1.17:8080/Profile/byusername?username=%s", username);
 		String json = Unirest.get(url).asString().getBody();
 
 		// JSON to object mapping
@@ -49,7 +49,7 @@ public class Client implements Runnable {
 		HttpResponse<kong.unirest.JsonNode> js;
 		try
 		{
-			js =  Unirest.post("http://localhost:8080/Profile/add")
+			js =  Unirest.post("http://192.168.1.17:8080/Profile/add")
 					.header("accept", "application/json")
 					.field("username", username)
 					.field("nome", nome)
@@ -72,7 +72,7 @@ public class Client implements Runnable {
 	}
 
 	public void updateProfile(String username, String nome, String cognome, String provincia, String ruolo1, String ruolo2) {
-		Unirest.put("http://localhost:8080/Profile/" + username)
+		Unirest.put("http://192.168.1.17:8080/Profile/" + username)
 		.field("nome", nome)
 		.field("cognome", cognome)
 		.field("provincia", provincia)
@@ -82,7 +82,7 @@ public class Client implements Runnable {
 	}
 
 	public Match getMatch(java.sql.Date data, java.sql.Time orario,int campo_id) {
-		String url = String.format("http://localhost:8080/Match/bykey?giorno=" + data + "&orario=" + orario + "&=" + campo_id);
+		String url = String.format("http://192.168.1.17:8080/Match/bykey?giorno=" + data + "&orario=" + orario + "&=" + campo_id);
 		String json = Unirest.get(url).asString().getBody();
 
 		Match m = null;
@@ -105,7 +105,7 @@ public class Client implements Runnable {
 
 		HttpResponse<kong.unirest.JsonNode> js;
 		try {
-			js = Unirest.post("http://localhost:8080/Match/add")
+			js = Unirest.post("http://192.168.1.17:8080/Match/add")
 					.header("accept", "application/jason")
 					.field("data", data)
 					.field("orario", time)
@@ -121,7 +121,7 @@ public class Client implements Runnable {
 	}
 
 	public ArrayList<Field> getField(String provincia) throws JsonMappingException, JsonProcessingException {
-		String url = String.format("http://localhost:8080/Field/byprovincia?provincia=%s", provincia);
+		String url = String.format("http://192.168.1.17:8080/Field/byprovincia?provincia=%s", provincia);
 		String json = Unirest.get(url).asString().getBody();
 
 		ArrayList<Field> f = null;
@@ -139,7 +139,7 @@ public class Client implements Runnable {
 	}
 
 	public ArrayList<String> getProvince(){
-		String url = new String("http://localhost:8080/Field/province");
+		String url = new String("http://192.168.1.17:8080/Field/province");
 		String json = Unirest.get(url).asString().getBody();
 
 		ArrayList<String> l = new ArrayList<String>();
@@ -161,7 +161,7 @@ public class Client implements Runnable {
 	}
 
 	public ArrayList<Request> getRequest(){
-		String url = new String("http://localhost:8080/Request");
+		String url = new String("http://192.168.1.17:8080/Request");
 		String json = Unirest.get(url).asString().getBody();
 
 		ArrayList<Request> r = new ArrayList<Request>();
@@ -184,7 +184,7 @@ public class Client implements Runnable {
 
 		HttpResponse<kong.unirest.JsonNode> js;
 		try {
-			js = Unirest.post("http://localhost:8080/Request/add")
+			js = Unirest.post("http://192.168.1.17:8080/Request/add")
 					.header("accept", "application/jason")
 					.field("giorno", m.data)
 					.field("orario_i", time)
@@ -205,7 +205,7 @@ public class Client implements Runnable {
 		}	
 	}
 	public ArrayList<Match> getMatchall(){
-		String url = new String("http://localhost:8080/Match");
+		String url = new String("http://192.168.1.17:8080/Match");
 		String json = Unirest.get(url).asString().getBody();
 		ArrayList<Match> m = new ArrayList<Match>();
 		try {
@@ -228,9 +228,8 @@ public class Client implements Runnable {
 		//String id_r = new String(String.valueOf(id_r));
 		String idcampo = new String(String.valueOf(id_campo));
 
-		HttpResponse<kong.unirest.JsonNode> js;
 		try{
-			js = Unirest.put("http://localhost:8080/Request/" + id_r)
+			Unirest.put("http://192.168.1.17:8080/Request/" + id_r)
 					.field("campo_id", idcampo)
 					.field("giorno", data)
 					.field("orario_i", ora)
@@ -241,9 +240,7 @@ public class Client implements Runnable {
 			jexc.printStackTrace();
 			throw jexc;
 		}
-		if(!js.isSuccess()) {
-			throw new Exception("Richiesta non aggiornata!");
-		}
+		
 	}
 	@Override
 	public void run() {

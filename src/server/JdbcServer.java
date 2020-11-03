@@ -51,7 +51,7 @@ public class JdbcServer {
 						"password varchar(20)\r\n" +
 						")\r\n" + 
 						"");
-				
+
 				db.executeQuery("create table partita (\r\n" + 
 						"giorno date,\r\n" + 
 						"orario_Inizio time, \r\n" + 
@@ -282,14 +282,14 @@ public class JdbcServer {
 			}
 			String s = null;
 			try {
-			s = om.writeValueAsString(f);
+				s = om.writeValueAsString(f);
 			}
 			catch(Exception e) {
 				System.out.println(e.toString());
 			}
 			return s;
 		});
-		
+
 		//GET -get by provincia 
 		get("/Field/byprovincia", (request, response) -> {
 			ArrayList<Field> f = new ArrayList<Field>();
@@ -300,7 +300,7 @@ public class JdbcServer {
 			while(rs.next()) {
 				f.add(new Field(rs.getInt("id"), provincia, rs.getString("nome_impianto"), rs.getString("nome_campo")));				
 			}
-			
+
 			return om.writeValueAsString(f);	
 		});
 
@@ -311,10 +311,10 @@ public class JdbcServer {
 			while(rs.next()) {
 				province.add(new String(rs.getString("provincia")));
 			}
-			
+
 			return province;
 		});
-		
+
 		/**
 		 * request for Request 
 		 * 
@@ -329,11 +329,11 @@ public class JdbcServer {
 			}
 			return om.writeValueAsString(r);
 		});
-		
+
 		post("/Request/add", (request, response) -> {
 			java.sql.Date giorno = java.sql.Date.valueOf(request.queryParams("giorno"));
 			java.sql.Time orario_i = java.sql.Time.valueOf(request.queryParams("orario_i"));
-			
+
 			int id_campo = Integer.valueOf(request.queryParams("id_campo"));
 			String provincia = request.queryParams("provincia"); 
 			String organizzatore = request.queryParams("organizzatore");
@@ -341,48 +341,50 @@ public class JdbcServer {
 			String nome_impianto = request.queryParams("nome_impianto");
 			String nome_campo = request.queryParams("nome_campo");
 			Request r = new Request(new Match(giorno, orario_i, id_campo, provincia, organizzatore), ruolo, nome_impianto, nome_campo);
-			
+
 			String query = new String("insert into richiesta (id_campo, giorno, orario_i, provincia, nome_impianto, organizzatore, ruolo, nome_campo) \r\n" + 
 					"	values(" + id_campo + ", '" + giorno + "', '"+ orario_i + "', '" + provincia + "', '" + nome_impianto +
 					"', '" + organizzatore + "', '" + ruolo + "', '" + nome_campo + "' ) ");
-			
+
 			db.executeUpdate(query);
-			
+
 			return om.writeValueAsString(r);
 		});
-		
+
 		put("/Request/:id_r", (request, response) ->	{
 			int id_r = Integer.valueOf(request.params("id_r"));
-			
+
 			java.sql.Date giorno = java.sql.Date.valueOf(request.queryParams("giorno"));
 			java.sql.Time orario_i = java.sql.Time.valueOf(request.queryParams("orario_i"));
-		
+
 			String accepter = request.queryParams("accepter");
 			String query;
-			
+
+			ResultSet rs;
 			query = String.format("SELECT * FROM richiesta WHERE id_r = %d", id_r);
-			
-			try
-			{
-				ResultSet rs = db.executeQuery(query);
-				if (rs.next() == false) {
-					response.status(404);
-					return om.writeValueAsString("{status: failed}");
+			synchronized (this) {
+				try
+				{
+					rs = db.executeQuery(query);
+					if (rs.next() == false) {
+						response.status(404);
+						return om.writeValueAsString("{status: failed}");
+					}
 				}
+				catch (SQLException e) {
+					throw new Exception();
+				}
+				if(accepter.isEmpty() || accepter == null || rs.getString("accepter") == null || rs.getString("accepter").isEmpty()) {
+					query = ("update richiesta set accepter = '" + accepter + "' WHERE id_r =" + id_r + " and giorno ='" + giorno + "' and orario_i=' " + orario_i + "'");
+					db.executeUpdate(query);
+				}
+				
 			}
-			catch (SQLException e) {
-				throw new Exception();
-			}
-			
-			Request r = new Request();
-			
-			query = ("update richiesta set accepter = '" + accepter + "' WHERE id_r =" + id_r + " and giorno ='" + giorno + "' and orario_i=' " + orario_i + "'");
-			db.executeUpdate(query);
-			return om.writeValueAsString(r);
-				});
-	
+			return true;
+		});
+
 	}
-	
+
 	public static void main(String[] args) throws Exception {
 		new JdbcServer().run();
 	}
