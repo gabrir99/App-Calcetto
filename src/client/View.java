@@ -422,6 +422,10 @@ public class View extends JFrame implements ActionListener{
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				if(p6.isVisible() || p7.isVisible()) {
+					tablemodel.setRowCount(0);
+					tablemodel2.setRowCount(0);
+				}
 				p = null;
 				pw.setText("");
 				p0.setVisible(true);
@@ -432,11 +436,7 @@ public class View extends JFrame implements ActionListener{
 				p5.setVisible(false);
 				p6.setVisible(false);
 				p7.setVisible(false);
-				setContentPane(p0);
-				if(p6.isVisible() || p7.isVisible()) {
-					tablemodel.setRowCount(0);
-					tablemodel2.setRowCount(0);
-				}
+				setContentPane(p0);	
 			}
 		});
 
