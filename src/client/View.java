@@ -154,6 +154,7 @@ public class View extends JFrame implements ActionListener{
 				"PN", "PZ", "PO", "RG", "RA", "RC", "RE", "RI", "RN", "RM", "RO", "SA", "SS", "SV", "SI", "SR", 
 				"SO", "TA", "TE", "TR", "TO", "TP", "TN", "TV", "TS", "UD", "VA", "VE", "VB", "VC", "VR", "VV", "VI", "VT" };
 		provincia = new JComboBox<String>(italianPr);
+		provincia.setEditable(false);
 
 		save = new JButton("SALVA");
 		save.addActionListener(this);
@@ -432,6 +433,10 @@ public class View extends JFrame implements ActionListener{
 				p6.setVisible(false);
 				p7.setVisible(false);
 				setContentPane(p0);
+				if(p6.isVisible() || p7.isVisible()) {
+					tablemodel.setRowCount(0);
+					tablemodel2.setRowCount(0);
+				}
 			}
 		});
 
@@ -741,7 +746,8 @@ public class View extends JFrame implements ActionListener{
 				millis = System.currentTimeMillis();
 				java.sql.Date date=new java.sql.Date(millis);
 				if (r1.get(i).m.data.after(date)){
-					if (r1.get(i).m.provincia.equals(p.provincia) && (r1.get(i).ruolo.equals(p.ruolo1) || r1.get(i).ruolo.equals(p.ruolo2)))
+					if (r1.get(i).m.provincia.equals(p.provincia) && ((r1.get(i).ruolo.equals(p.ruolo1) || r1.get(i).ruolo.equals(p.ruolo2)))
+							&& !r1.get(i).m.organizzatore.equals(p.username))
 					{
 						goodR.add(r1.get(i));
 						t2.getColumnModel().getColumn(6).setCellEditor(new ButtonEditor(new JCheckBox(), this.p, goodR));;
