@@ -449,7 +449,6 @@ public class View extends JFrame implements ActionListener{
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setSize(700, 430);
 		setVisible(true);
-
 	}
 
 	@Override
