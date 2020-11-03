@@ -8,11 +8,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DBManager {
-	public static final String JDBCurlSQLServer = new String("jdbc:sqlserver://;servername=N256769\\SQLEXPRESS;databaseName=Calcetto;user=sa;password=pwd");
+	public static final String JDBCurlSQLServer = new String("jdbc:sqlserver://;servername=LAPTOP-1FQVA96L\\SQLEXPRESS;databaseName=Calcetto;user=sa;password=pwd");
 	public static final String JDBCdriverSQLServer = new String("com.microsoft.sqlserver.jdbc.SQLServerDriver");
 
 	protected Connection connection;
-	protected Statement statement;
+	public Statement statement;
 
 	public DBManager() throws ClassNotFoundException, SQLException{
 		//DriverManager.registerDriver(new com.microsoft.sqlserver.jdbc.SQLServerDriver());

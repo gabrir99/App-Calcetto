@@ -102,7 +102,7 @@ public class Client implements Runnable {
 	public void postMatch(Date data, Time orario, int campo_id, String provincia, String organizzatore) throws Exception {
 		String time = orario.toString();	
 		String field_id = String.valueOf(campo_id);
-		
+
 		HttpResponse<kong.unirest.JsonNode> js;
 		try {
 			js = Unirest.post("http://localhost:8080/Match/add")
@@ -177,11 +177,11 @@ public class Client implements Runnable {
 		}
 		return r;
 	}
-	
+
 	public void postRequest(Match m, String ruolo, String nome_impianto, String nome_campo) throws Exception {
 		String time = m.orario.toString();
 		String campo = String.valueOf(m.campo_id);
-		
+
 		HttpResponse<kong.unirest.JsonNode> js;
 		try {
 			js = Unirest.post("http://localhost:8080/Request/add")
@@ -199,7 +199,7 @@ public class Client implements Runnable {
 			jexc.printStackTrace();
 			throw jexc;
 		}
-		
+
 		if(!js.isSuccess()) {
 			throw new Exception("Richiesta non riuscita!");
 		}	
@@ -218,25 +218,33 @@ public class Client implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		return m;
 	}
-	
-	public void updateRequest(int id_r, int id_campo, java.sql.Date giorno, java.sql.Time orario_i, String accepter) {
+
+	public void updateRequest(int id_r, int id_campo, java.sql.Date giorno, java.sql.Time orario_i, String accepter) throws Exception {
 		String data = new String(String.valueOf(giorno));
 		String ora = new String(String.valueOf(orario_i));
-		String idr = new String(String.valueOf(id_r));
+		//String id_r = new String(String.valueOf(id_r));
 		String idcampo = new String(String.valueOf(id_campo));
-		
-		Unirest.put("http://localhost:8080/Request/" + id_r)
-		.field("id_r", idr)
-		.field("id_campo", idcampo)
-		.field("giorno", data)
-		.field("orario_i", ora)
-		.field("accepter", accepter)
-		.asJson();
-	}
 
+		HttpResponse<kong.unirest.JsonNode> js;
+		try{
+			js = Unirest.put("http://localhost:8080/Request/" + id_r)
+					.field("campo_id", idcampo)
+					.field("giorno", data)
+					.field("orario_i", ora)
+					.field("accepter", accepter)
+					.asJson();
+			
+		} catch(JSONException jexc) {
+			jexc.printStackTrace();
+			throw jexc;
+		}
+		if(!js.isSuccess()) {
+			throw new Exception("Richiesta non aggiornata!");
+		}
+	}
 	@Override
 	public void run() {
 	}

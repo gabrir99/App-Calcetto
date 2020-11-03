@@ -15,6 +15,7 @@ import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -63,15 +64,15 @@ public class View extends JFrame implements ActionListener{
 	JComboBox<String> rules, rules1, rules2, rules1B, rules2B;
 	JButton enter;
 	JPanel p0, p1, p2, p3, p4, p5, p6, p7, p8;
-	
+
 	JButton gestisci, partecipa;
-	DefaultTableModel tablemodel, tablemodel2, tablemodel3;
+	DefaultTableModel tablemodel, tablemodel2;//, tablemodel3;
 	JTable t1, t2, t3;
-	JButton gioca, elimina, vedi;
-	
+	JButton gioca, elimina;
+
 	JTextField usernameB, nomeB, cognomeB, pwB;
 	JComboBox<String> provinciaB;
-	
+
 	GridBagConstraints c;
 
 	Profile p = null;
@@ -79,7 +80,7 @@ public class View extends JFrame implements ActionListener{
 
 	public View() {
 		client = new Client();
-		
+
 		Dimension d = new Dimension(100, 15);
 		//p0 AUTENTICATION
 		p0 = new JPanel(new GridBagLayout());
@@ -153,7 +154,7 @@ public class View extends JFrame implements ActionListener{
 				"PN", "PZ", "PO", "RG", "RA", "RC", "RE", "RI", "RN", "RM", "RO", "SA", "SS", "SV", "SI", "SR", 
 				"SO", "TA", "TE", "TR", "TO", "TP", "TN", "TV", "TS", "UD", "VA", "VE", "VB", "VC", "VR", "VV", "VI", "VT" };
 		provincia = new JComboBox<String>(italianPr);
-		
+
 		save = new JButton("SALVA");
 		save.addActionListener(this);
 
@@ -202,16 +203,16 @@ public class View extends JFrame implements ActionListener{
 		orario = new JComboBox<LocalTime>(hours);
 
 		ArrayList<String> provProvvisorio = client.getProvince(); 
-		
+
 		String[] prov = provProvvisorio.toArray(new String[provProvvisorio.size()]);
-		
+
 		provinces = new JComboBox<String>(prov);
 		provinces.addActionListener(this);
 
 		impianto = new JComboBox<String>();
 		impianto.addActionListener(this);
 		campo = new JComboBox<String>();
-		
+
 		rules = new JComboBox<String>(ruoli);
 		enter = new JButton("Invia richiesta");
 		enter.addActionListener(this);
@@ -243,7 +244,7 @@ public class View extends JFrame implements ActionListener{
 		p3.add(new JLabel("Campo"), c);
 		c.gridx = 2; 
 		p3.add(campo, c);
-		
+
 		c.gridy = 6; c.gridx = 0;
 		p3.add(new JLabel("Che giocatore ti serve?"), c);
 		c.gridx = 2; 
@@ -259,16 +260,10 @@ public class View extends JFrame implements ActionListener{
 		rules2B = new JComboBox<String>(ruoli); 
 
 		nomeB = new JTextField();
-		//nomeB.setMaximumSize(d);
-		//nomeB.setMinimumSize(d);
 
 		cognomeB = new JTextField();
-		//cognomeB.setMaximumSize(d);
-		//cognomeB.setMinimumSize(d);
 
 		provinciaB = new JComboBox<String>(italianPr);
-		//provinciaB.setMaximumSize(d);
-		//provinciaB.setMinimumSize(d);
 
 		usernameB = new JTextField();
 		pwB = new JTextField();
@@ -319,39 +314,43 @@ public class View extends JFrame implements ActionListener{
 		p5 = new JPanel(new GridLayout(2,1));
 		gestisci = new JButton("GESTISCI!");
 		partecipa = new JButton("PARTECIPA!");
-		
+
 		gestisci.addActionListener(this);
 		partecipa.addActionListener(this);
-		
+
 		p5.add(gestisci);
 		p5.add(partecipa);
-		
+
 		//P6 MATCHES CREATED
 		p6 = new JPanel(new GridLayout());
-		
+
 		tablemodel= new DefaultTableModel();
 		t1 = new JTable(tablemodel);
-		
-		
+
+
 		tablemodel.addColumn("PROVINCIA");
 		tablemodel.addColumn("STRUTTURA");
 		tablemodel.addColumn("CAMPO");
 		tablemodel.addColumn("DATA");
 		tablemodel.addColumn("ORA");
-		tablemodel.addColumn("VEDI PARTECIPANTI");
-		
+		tablemodel.addColumn("RUOLO");
+		tablemodel.addColumn("GIOCATORE");
+
 		t1.getTableHeader().setReorderingAllowed(false);
 		t1.setEnabled(false);
-		vedi= new JButton("PARTECIPANTI");
-		t1.getColumn("VEDI PARTECIPANTI").setCellRenderer(new ButtonRenderer());
-		t1.getColumn("VEDI PARTECIPANTI").setCellEditor(new ButtonEditor(vedi));
-		
-		
+	
 		p6.add(new JScrollPane(t1));
-		
+
 		//P7 MATCHES TO PARTECIPATE
 		p7 = new JPanel(new GridLayout());
-		tablemodel2= new DefaultTableModel();
+		tablemodel2 = new DefaultTableModel() {
+			private static final long serialVersionUID = 1L;
+
+			public boolean isCellEditable(int row, int column) {
+				return column == 6;
+			};
+		};
+
 		t2 = new JTable (tablemodel2);
 		tablemodel2.addColumn("STRUTTURA");
 		tablemodel2.addColumn("CAMPO");
@@ -359,23 +358,15 @@ public class View extends JFrame implements ActionListener{
 		tablemodel2.addColumn("ORA");
 		tablemodel2.addColumn("RUOLO RICHIESTO");
 		tablemodel2.addColumn("ORGANIZZATORE");
-		tablemodel2.addColumn("PARTECIPA");
-		tablemodel2.addColumn("ELIMINA");
-		
-		t2.setEnabled(false);
+		tablemodel2.addColumn("GIOCHI?");
+
 		t2.getTableHeader().setReorderingAllowed(false);
+
+		t2.getColumnModel().getColumn(6).setCellRenderer(new ButtonRenderer());
+	
 		p7.add(new JScrollPane(t2));
+
 		
-		//P8 PARTECIPANTS
-		/*p8 = new JPanel(new GridLayout());
-		tablemodel3 = new DefaultTableModel();
-		t3 = new JTable (tablemodel3);
-		tablemodel3.addColumn("#");
-		tablemodel3.addColumn("USERNAME");
-		tablemodel3.addColumn("RUOLO");
-		p8.add(new JScrollPane(t3));
-		
-		*/
 		//JMENU
 
 		JMenuItem back = new JMenuItem("BACK");
@@ -384,7 +375,10 @@ public class View extends JFrame implements ActionListener{
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(p4.isVisible()){
+				if(p0.isVisible()) {
+					return;
+				}
+				else if(p4.isVisible()){
 					p0.setVisible(true);
 					p1.setVisible(false);
 					p2.setVisible(false);
@@ -393,7 +387,6 @@ public class View extends JFrame implements ActionListener{
 					p5.setVisible(false);
 					p6.setVisible(false);
 					p7.setVisible(false);
-					//p8.setVisible(false);
 					setContentPane(p0);
 				}
 				else if(p2.isVisible() || p3.isVisible() || p5.isVisible()) { 
@@ -405,7 +398,6 @@ public class View extends JFrame implements ActionListener{
 					p5.setVisible(false);
 					p6.setVisible(false);
 					p7.setVisible(false);
-					//p8.setVisible(false);
 					setContentPane(p1);
 				}
 				else if(p6.isVisible() || p7.isVisible()) { 
@@ -419,13 +411,9 @@ public class View extends JFrame implements ActionListener{
 					p5.setVisible(true);
 					p6.setVisible(false);
 					p7.setVisible(false);
-					//p8.setVisible(false);
 					setContentPane(p5);
 				}
-				// manca p8
-				else if(p0.isVisible()) {
-					return;
-				}
+
 			}
 
 		});
@@ -443,7 +431,6 @@ public class View extends JFrame implements ActionListener{
 				p5.setVisible(false);
 				p6.setVisible(false);
 				p7.setVisible(false);
-				//p8.setVisible(false);
 				setContentPane(p0);
 			}
 		});
@@ -455,7 +442,7 @@ public class View extends JFrame implements ActionListener{
 		setContentPane(p0);
 		setJMenuBar(menu);
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		setSize(470, 430);
+		setSize(700, 430);
 		setVisible(true);
 
 	}
@@ -487,7 +474,6 @@ public class View extends JFrame implements ActionListener{
 				p5.setVisible(false);
 				p6.setVisible(false);
 				p7.setVisible(false);
-				//p8.setVisible(false);
 			}
 			else {
 				JOptionPane.showMessageDialog(null, "Username o password sbagliato");
@@ -503,7 +489,6 @@ public class View extends JFrame implements ActionListener{
 			p5.setVisible(false);
 			p6.setVisible(false);
 			p7.setVisible(false);
-			//p8.setVisible(false);
 
 			setContentPane(p4);
 
@@ -511,7 +496,7 @@ public class View extends JFrame implements ActionListener{
 		if(e.getSource() == profile) {
 			nome.setEditable(false);
 			cognome.setEditable(false);
-			
+
 			nome.setText(p.nome);
 			cognome.setText(p.cognome);
 			provincia.setSelectedItem(p.provincia);
@@ -526,7 +511,7 @@ public class View extends JFrame implements ActionListener{
 			p5.setVisible(false);
 			p6.setVisible(false);
 			p7.setVisible(false);
-			//p8.setVisible(false);
+
 			setContentPane(p2);
 		}
 		if(e.getSource() == save) {
@@ -545,7 +530,6 @@ public class View extends JFrame implements ActionListener{
 			p5.setVisible(false);
 			p6.setVisible(false);
 			p7.setVisible(false);
-			//p8.setVisible(false);
 
 			setContentPane(p3);
 		}
@@ -558,13 +542,14 @@ public class View extends JFrame implements ActionListener{
 			} catch (JsonProcessingException e1) {
 				e1.printStackTrace();
 			}
-			
+
 			Vector<String> strutture = new Vector<String>();
 			for(int i = 0; i < f.size(); ++i) {
 				strutture.add(f.get(i).nome_impianto);
 			}
-			
+
 			LinkedHashSet<String> struttureTmp = new LinkedHashSet<String>(strutture);
+
 			strutture.removeAllElements();
 			strutture = new Vector<String>(struttureTmp);
 			impianto.setModel(new DefaultComboBoxModel<String>(strutture));
@@ -575,9 +560,9 @@ public class View extends JFrame implements ActionListener{
 				if(f.get(i).nome_impianto.equals(impianto.getSelectedItem().toString()))
 					campi.add(f.get(i).nome_campo);
 			}
-			
+
 			campo.setModel(new DefaultComboBoxModel<String>(campi));
-			
+
 		}
 		if(e.getSource() == enter) {
 			java.util.Date dTmp = (java.util.Date) data.getModel().getValue();
@@ -592,7 +577,7 @@ public class View extends JFrame implements ActionListener{
 			}
 			String sass = orario.getSelectedItem().toString().concat(":00");
 			Time o1 = Time.valueOf(sass);
-			
+
 			String imp1 = impianto.getSelectedItem().toString();
 			String camp1 = campo.getSelectedItem().toString();
 			String p1 = provinces.getSelectedItem().toString();
@@ -658,7 +643,6 @@ public class View extends JFrame implements ActionListener{
 				p5.setVisible(false);
 				p6.setVisible(false);
 				p7.setVisible(false);
-				//p8.setVisible(false);
 				setContentPane(p0);
 			}			
 		}
@@ -672,12 +656,11 @@ public class View extends JFrame implements ActionListener{
 			p5.setVisible(true);
 			p6.setVisible(false);
 			p7.setVisible(false);
-			//p8.setVisible(false);
 			setContentPane(p5);
 		}
 		if (e.getSource() == gestisci)
 		{					
-			ArrayList<Match> m1 = client.getMatchall();
+			ArrayList<Request> m1 = client.getRequest();
 			String nomeCampo = null;
 			String nomeImpianto = null;
 
@@ -685,46 +668,56 @@ public class View extends JFrame implements ActionListener{
 			{
 				long millis=System.currentTimeMillis();
 				java.sql.Date date=new java.sql.Date(millis);
-				if (m1.get(i).data.after(date)){
-					if (m1.get(i).organizzatore.equals(p.username))
+				if (m1.get(i).m.data.after(date)){
+					if (m1.get(i).m.organizzatore.equals(p.username))
 					{
 						ArrayList<Field> fields = null;
 						try {
-							fields = client.getField(m1.get(i).provincia);
+							fields = client.getField(m1.get(i).m.provincia);
 						} catch (JsonMappingException e1) {
-							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						} catch (JsonProcessingException e1) {
-							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
-						for (int j=0; j < fields.size(); j++)
-						{
-							
-							if (m1.get(i).campo_id == fields.get(j).id)
+
+						for (int j=0; j < fields.size(); j++){
+
+							if (m1.get(i).m.campo_id == fields.get(j).id)
 							{
 								nomeCampo = new String(fields.get(j).nome_campo);
 								nomeImpianto = new String(fields.get(j).nome_impianto);
 							}
 						}
-						tablemodel.addRow(new Object[]{
-							m1.get(i).provincia,
-							nomeImpianto,
-							nomeCampo,
-							m1.get(i).data,
-							m1.get(i).orario,
-							//new JButton vedi part
-						});
-						
+						if (m1.get(i).accepter == null || m1.get(i).accepter.isEmpty()) {
+							tablemodel.addRow(new Object[]{
+									m1.get(i).m.provincia,
+									nomeImpianto,
+									nomeCampo,
+									m1.get(i).m.data,
+									m1.get(i).m.orario,
+									m1.get(i).ruolo,
+									"Ancora nessuno"
+							});
+						}
+						else {
+							tablemodel.addRow(new Object[]{
+									m1.get(i).m.provincia,
+									nomeImpianto,
+									nomeCampo,
+									m1.get(i).m.data,
+									m1.get(i).m.orario, 
+									m1.get(i).ruolo,
+									m1.get(i).accepter
+							});
+						}
 					}
-					
 				}
 			}
-			
+
 			if (tablemodel.getRowCount() == 0)
-				JOptionPane.showMessageDialog(null, "Non ci sono partite create!");
-			
-			
+				JOptionPane.showMessageDialog(null, "Alzati dal divano e crea almeno una partita!");
+
+
 			p0.setVisible(false);
 			p1.setVisible(false);
 			p2.setVisible(false);
@@ -732,49 +725,58 @@ public class View extends JFrame implements ActionListener{
 			p4.setVisible(false);
 			p5.setVisible(false);
 			p6.setVisible(true);
-			
+
 			setContentPane(p6);
 			p7.setVisible(false);
 			//p8.setVisible(false);
 		}
-		
+
 		if (e.getSource() == partecipa)
 		{
 			ArrayList<Request> r1 = client.getRequest();
-			//gioca = new ArrayList<JButton>();
-			//elimina = new ArrayList<JButton>();
-			int j=0;
-			for(int i=0; i < r1.size(); i++)
+			ArrayList<Request> goodR = new ArrayList<Request>();
+			long millis;
+			for(int i = 0; i < r1.size(); i++)
 			{
-				long millis=System.currentTimeMillis();
+				millis = System.currentTimeMillis();
 				java.sql.Date date=new java.sql.Date(millis);
 				if (r1.get(i).m.data.after(date)){
 					if (r1.get(i).m.provincia.equals(p.provincia) && (r1.get(i).ruolo.equals(p.ruolo1) || r1.get(i).ruolo.equals(p.ruolo2)))
 					{
-						//gioca.add(j, new JButton("GIOCA")); 
-						//elimina.add(j, new JButton("ELIMINA"));
-						
-						tablemodel2.addRow(new Object[] {
-								r1.get(i).nome_impianto,
-								r1.get(i).nome_campo,
-								r1.get(i).m.data,
-								r1.get(i).m.orario,
-								r1.get(i).ruolo,
-								r1.get(i).m.organizzatore,
-								//gioca.get(j),
-								//elimina.get(j)
-								
-						});
-						j++;
+						goodR.add(r1.get(i));
+						t2.getColumnModel().getColumn(6).setCellEditor(new ButtonEditor(new JCheckBox(), this.p, goodR));;
+						if(r1.get(i).accepter == null || r1.get(i).accepter.isEmpty()) {
+									
+							tablemodel2.addRow(new Object[] {
+									r1.get(i).nome_impianto,
+									r1.get(i).nome_campo,
+									r1.get(i).m.data,
+									r1.get(i).m.orario,
+									r1.get(i).ruolo,
+									r1.get(i).m.organizzatore,
+									"PARTECIPA"
+							});
+							
+						}
+						else if(r1.get(i).accepter.equals(p.username)) {
+							
+							tablemodel2.addRow(new Object[] {
+									r1.get(i).nome_impianto,
+									r1.get(i).nome_campo,
+									r1.get(i).m.data,
+									r1.get(i).m.orario,
+									r1.get(i).ruolo,
+									r1.get(i).m.organizzatore,
+									"CANCELLATI"
+							});						
+						}
 					}
 				}
-				
-				
 			}
 			if (tablemodel2.getRowCount() == 0)
-					JOptionPane.showMessageDialog(null, "Siamo spiacenti, non ci sono partite a cui puoi partecipare!");
+				JOptionPane.showMessageDialog(null, "Ups.. non ci sono partite a cui puoi partecipare!");
 
-				
+
 			p0.setVisible(false);
 			p1.setVisible(false);
 			p2.setVisible(false);
@@ -784,17 +786,6 @@ public class View extends JFrame implements ActionListener{
 			p6.setVisible(false);
 			p7.setVisible(true);
 			setContentPane(p7);
-			//p8.setVisible(false);
 		}
-		
-		/*if (e.getSource() == partecipanti)
-		{
-			p0.setVisible(false);
-			p1.setVisible(false);
-			p2.setVisible(false);
-			p3.setVisible(true);
-			setContentPane(p3);
-		}
-		*/
 	}
 }

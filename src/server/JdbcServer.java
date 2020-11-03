@@ -235,7 +235,11 @@ public class JdbcServer {
 			Match m = new Match(data, orario, campo_id, provincia, organizzatore);
 			String query = new String("insert into partita (giorno, orario_Inizio, campo_id, provincia, organizzatore) values"
 					+ "('" + data + "', '" + orario + "', '" + campo_id + "', '" + provincia + "', '" + organizzatore + "')");
-			db.executeUpdate(query);
+			try{
+				db.executeUpdate(query);
+			} catch(Exception e) {
+				throw new Exception();
+			}
 			return om.writeValueAsString(m);
 		});
 
@@ -321,7 +325,7 @@ public class JdbcServer {
 			ResultSet rs = db.executeQuery(query);
 			while(rs.next()) {
 				r.add(new Request(rs.getInt("id_r"), new Match(rs.getDate("giorno"), rs.getTime("orario_i"), rs.getInt("id_campo"), rs.getString("provincia"), 
-						rs.getString("organizzatore")), rs.getString("ruolo"), rs.getString("nome_impianto"), rs.getString("nome_campo")));
+						rs.getString("organizzatore")), rs.getString("accepter"), rs.getString("ruolo"), rs.getString("nome_impianto"), rs.getString("nome_campo")));
 			}
 			return om.writeValueAsString(r);
 		});
@@ -349,9 +353,10 @@ public class JdbcServer {
 		
 		put("/Request/:id_r", (request, response) ->	{
 			int id_r = Integer.valueOf(request.params("id_r"));
-			int id_campo = Integer.valueOf(request.params("id_campo"));
+			
 			java.sql.Date giorno = java.sql.Date.valueOf(request.queryParams("giorno"));
 			java.sql.Time orario_i = java.sql.Time.valueOf(request.queryParams("orario_i"));
+		
 			String accepter = request.queryParams("accepter");
 			String query;
 			
@@ -371,7 +376,7 @@ public class JdbcServer {
 			
 			Request r = new Request();
 			
-			query = ("update richiesta set accepter = '" + accepter + "' WHERE id_r=" + id_r + " and id_campo=" + id_campo + "and giorno='" + giorno + "' and orario_i=' " + orario_i + "'");
+			query = ("update richiesta set accepter = '" + accepter + "' WHERE id_r =" + id_r + " and giorno ='" + giorno + "' and orario_i=' " + orario_i + "'");
 			db.executeUpdate(query);
 			return om.writeValueAsString(r);
 				});
