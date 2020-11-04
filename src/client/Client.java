@@ -26,7 +26,7 @@ public class Client implements Runnable {
 	ObjectMapper om = new ObjectMapper();
 
 	public Profile getId(String username) {
-		//String url = String.format("http://192.168.1.15:8080/Profile/byusername?username=%s", username);
+		//String url = String.format("http://localhost:8080/Profile/byusername?username=%s", username);
 		String url = String.format("http://192.168.1.17:8080/Profile/byusername?username=%s", username);
 		String json = Unirest.get(url).asString().getBody();
 
