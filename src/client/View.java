@@ -748,7 +748,7 @@ public class View extends JFrame implements ActionListener{
 					if (r1.get(i).m.provincia.equals(p.provincia) && ((r1.get(i).ruolo.equals(p.ruolo1) || r1.get(i).ruolo.equals(p.ruolo2)))
 							&& !r1.get(i).m.organizzatore.equals(p.username))
 					{
-						t2.getColumnModel().getColumn(6).setCellEditor(new ButtonEditor(new JCheckBox(), this.p, goodR));;
+						
 						if(r1.get(i).accepter == null || r1.get(i).accepter.isEmpty()) {
 									
 							tablemodel2.addRow(new Object[] {
@@ -761,6 +761,7 @@ public class View extends JFrame implements ActionListener{
 									"PARTECIPA"
 							});
 							goodR.add(r1.get(i));
+							t2.getColumnModel().getColumn(6).setCellEditor(new ButtonEditor(new JCheckBox(), this.p, goodR));;
 						}
 						else if(r1.get(i).accepter.equals(p.username)) {
 							
@@ -774,6 +775,7 @@ public class View extends JFrame implements ActionListener{
 									"CANCELLATI"
 							});
 							goodR.add(r1.get(i));
+							t2.getColumnModel().getColumn(6).setCellEditor(new ButtonEditor(new JCheckBox(), this.p, goodR));;
 						}
 					}
 				}
