@@ -8,7 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DBManager {
-	public static final String JDBCurlSQLServer = new String("jdbc:sqlserver://;servername=LAPTOP-1FQVA96L\\SQLEXPRESS;databaseName=Calcetto;user=sa;password=pwd");
+	public static final String JDBCurlSQLServer = new String("jdbc:sqlserver://;servername=**\\SQLEXPRESS;databaseName=Calcetto;user=sa;password=**");
 	public static final String JDBCdriverSQLServer = new String("com.microsoft.sqlserver.jdbc.SQLServerDriver");
 
 	protected Connection connection;
